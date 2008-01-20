@@ -1,6 +1,11 @@
-/*
+/* 
+ Javascript lib remix by J Nash v1 20/1/2008
+ (twiddles the functions "encrypt" and "decrypt" of the
+ Drench lib so it's compatible with Crypt::Blowfish)
+
+ Twiddles adapted from Matthew Byng-Maddick's Crypt::Blowfish_PP
+
  JavaScript encryption module ver. 2.0 by Daniel Rench
- 
  Based on existing code:
  Copyright (c) 2003 by Andre Mueller.
  Init of blowfish constants with a function (init/backup errors)
@@ -16,6 +21,7 @@ function Blowfish(k){
 	this.bf_S1=this.Fbf_S1();
 	this.bf_S2=this.Fbf_S2();
 	this.bf_S3=this.Fbf_S3();
+
 	this.escape=function(t){
 		var r='';
 		for(var i=0;i<t.length;i++){
@@ -30,19 +36,24 @@ function Blowfish(k){
 		}
 		return r;
 	};
+
 	this.wordbyte0=function(w){return Math.floor(Math.floor(Math.floor(w/256)/256)/256)%256};
 	this.wordbyte1=function(w){return Math.floor(Math.floor(w/256)/256)%256};
 	this.wordbyte2=function(w){return Math.floor(w/256)%256};
 	this.wordbyte3=function(w){return w%256};
+
 	this.xor=function(w1,w2){var r=w1^w2;if (r<0) r=0xffffffff+1+r; return r};
+
 	this.key=(k.length>56)?k.substr(0,56):k;
 	var j=0;
 	for(var i=0;i<18;++i){
 		var d=((this.key.charCodeAt(j%this.key.length)*256+this.key.charCodeAt((j+1)%this.key.length))*256+this.key.charCodeAt((j+2)%this.key.length))*256+this.key.charCodeAt((j+3)%this.key.length);
+
 		this.bf_P[i]=this.xor(this.bf_P[i],d);
 		j=(j+4)%this.key.length;
 	}
-	this.key=this.escape(this.key);
+// this.key=this.escape(this.key); // not req
+
 	this.xl_par=0x00000000;
 	this.xr_par=0x00000000;
 	for(var i=0;i<18;i+=2){
@@ -70,6 +81,7 @@ function Blowfish(k){
 		this.bf_S3[j]=this.xl_par;
 		this.bf_S3[j+1]=this.xr_par;
 	}
+
 	this.unescape=function(t){
 		var r='';
 		for(i=0;i<t.length;i++){
@@ -90,6 +102,7 @@ function Blowfish(k){
 		return r;
 	};
 }
+
 Blowfish.prototype.Fbf_P=function(){return [
 	0x243f6a88,0x85a308d3,0x13198a2e,0x03707344,0xa4093822,0x299f31d0,
 	0x082efa98,0xec4e6c89,0x452821e6,0x38d01377,0xbe5466cf,0x34e90c6c,
@@ -275,7 +288,9 @@ Blowfish.prototype.Fbf_S3=function(){return [
 	0x01c36ae4,0xd6ebe1f9,0x90d4f869,0xa65cdea0,0x3f09252d,0xc208e69f,
 	0xb74e6132,0xce77e25b,0x578fdfe3,0x3ac372e6
 ];};
-Blowfish.prototype.encrypt=function(t){
+
+// original (incompat with Crypt::Blowfish)
+Blowfish.prototype.encrypt_ORIG=function(t){
 	var t=this.escape(t);
 	for(var i=0;i<t.length%16;i++) t+='0';
 	var r='';
@@ -287,7 +302,9 @@ Blowfish.prototype.encrypt=function(t){
 	}
 	return r;
 };
-Blowfish.prototype.decrypt=function(t){
+
+// original (incompat with Crypt::Blowfish)
+Blowfish.prototype.decrypt_ORIG=function(t){
 	for(var i=0;i<t.length%16;i++) t+='0';
 	var r='';
 	for (var i=0;i<t.length;i+=16){
@@ -298,10 +315,60 @@ Blowfish.prototype.decrypt=function(t){
 	}
 	return this.unescape(r);
 };
+
+// remix compatible with Crypt::Blowfish
+Blowfish.prototype.encrypt = function (t)
+{
+for (var f = 0; f < t.length % 8; f ++) t+= "0";
+var enc = "";
+
+for (var f = 0; f < t.length; f += 8)
+{
+var l = t.substr(f, 4);
+var r = t.substr(f + 4, 4);
+
+var lcalc = l.charCodeAt(3) | (l.charCodeAt(2) << 8) | (l.charCodeAt(1) << 16) | (l.charCodeAt(0) << 24);
+if (lcalc < 0) { lcalc = 0xffffffff + 1 + lcalc; }
+var rcalc = r.charCodeAt(3) | (r.charCodeAt(2) << 8) | (r.charCodeAt(1) << 16) | (r.charCodeAt(0) << 24);
+if (rcalc < 0) { rcalc = 0xffffffff + 1 + rcalc; }
+
+this.xl_par = lcalc;
+this.xr_par = rcalc;
+this.encipher();
+
+enc += this.wordescape(this.xl_par) + this.wordescape(this.xr_par);
+}
+return enc;
+}
+
+// remix compatible with Crypt::Blowfish
+Blowfish.prototype.decrypt = function (t)
+{
+for (var f = 0; f < t.length % 16; f ++) t += "0";
+var dec = "";
+
+for (var f = 0; f < t.length; f += 16)
+{
+var l = this.unescape(t.substr(f, 8));
+var r = this.unescape(t.substr(f + 8, 8));
+
+var lcalc = l.charCodeAt(3) | (l.charCodeAt(2) << 8) | (l.charCodeAt(1) << 16) | (l.charCodeAt(0) << 24);
+if (lcalc < 0) { lcalc = 0xffffffff + 1 + lcalc; }
+var rcalc = r.charCodeAt(3) | (r.charCodeAt(2) << 8) | (r.charCodeAt(1) << 16) | (r.charCodeAt(0) << 24);
+if (rcalc < 0) { rcalc = 0xffffffff + 1 + rcalc; }
+
+this.xl_par = lcalc;
+this.xr_par = rcalc;
+this.decipher();
+
+dec += this.wordescape(this.xl_par) + this.wordescape(this.xr_par);
+}
+return this.unescape(dec);
+}
+
 Blowfish.prototype.wordescape=function(w){
 	var r='';
-	// reverse byteorder for intel systems
-	var m=new Array (this.wordbyte0(w),this.wordbyte1(w),this.wordbyte2(w),this.wordbyte3(w));
+	var m=new Array (this.wordbyte3(w),this.wordbyte2(w),this.wordbyte1(w),this.wordbyte0(w));
 	for(var i=3;i>=0;i--){
 		var t1=Math.floor(m[i]/16);
 		var t2=m[i]%16;
@@ -311,11 +378,11 @@ Blowfish.prototype.wordescape=function(w){
 		else t2+=55;
 		r+=String.fromCharCode(t1)+String.fromCharCode(t2);
 	}
-	return r;
+		return r;
 };
+
 Blowfish.prototype.wordunescape=function(t){
 	var r=0;
-	// reverse byteorder for intel systems
 	for(var i=6;i>=0;i-=2){
 		var t1=t.charCodeAt(i);
 		var t2=t.charCodeAt(i+1);
@@ -325,12 +392,15 @@ Blowfish.prototype.wordunescape=function(t){
 		else t2-=55;
 		r=r*256+(t1*16+t2);
 	}
-	return r;
+		return r;
 };
+
 Blowfish.prototype.round=function(a,b,n){
 	var t=this;
-	return(t.xor(a,t.xor(((t.xor((t.bf_S0[t.wordbyte0(b)]+t.bf_S1[t.wordbyte1(b)]),t.bf_S2[t.wordbyte2(b)]))+t.bf_S3[t.wordbyte3(b)]),t.bf_P[n])));
+	return(t.xor(a,t.xor(((t.xor((t.bf_S0[t.wordbyte0(b)] + t.bf_S1[t.wordbyte1(b)]), t.bf_S2[t.wordbyte2(b)])) +
+t.bf_S3[t.wordbyte3(b)]), t.bf_P[n])));
 };
+
 Blowfish.prototype.encipher=function(){
 	var t=this;
 	var Xl=t.xl_par;
@@ -348,6 +418,7 @@ Blowfish.prototype.encipher=function(){
 	t.xl_par=Xr;
 	t.xr_par=Xl;
 };
+
 Blowfish.prototype.decipher=function(){
 	var t=this;
 	var Xl=t.xl_par;
