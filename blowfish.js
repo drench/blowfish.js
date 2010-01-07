@@ -5,14 +5,14 @@
 
  Twiddles adapted from Matthew Byng-Maddick's Crypt::Blowfish_PP
 
- JavaScript encryption module ver. 2.0 by Daniel Rench
+ JavaScript encryption module ver. 2.0 by Daniel Rench, 2005-2007
  Based on existing code:
  Copyright (c) 2003 by Andre Mueller.
  Init of blowfish constants with a function (init/backup errors)
  Copyright (c) 2003 by Rainer Wollmann
  This Object is open source. You can redistribute it and/or modify
  it under the terms of the Universal General Public License (UGPL).
- http://www.ugpl.de/
+ http://aam.ugpl.de/?q=ugpl
 */
 function Blowfish(k){
 	if (k.length==0) throw "0 length key";
