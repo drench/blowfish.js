@@ -289,33 +289,6 @@ Blowfish.prototype.Fbf_S3=function(){return [
 	0xb74e6132,0xce77e25b,0x578fdfe3,0x3ac372e6
 ];};
 
-// original (incompat with Crypt::Blowfish)
-Blowfish.prototype.encrypt_ORIG=function(t){
-	var t=this.escape(t);
-	for(var i=0;i<t.length%16;i++) t+='0';
-	var r='';
-	for(var i=0;i<t.length;i+=16){
-		this.xr_par=this.wordunescape(t.substr(i,8));
-		this.xl_par=this.wordunescape(t.substr(i+8,8));
-		this.encipher();
-		r+=this.wordescape(this.xr_par)+this.wordescape(this.xl_par);
-	}
-	return r;
-};
-
-// original (incompat with Crypt::Blowfish)
-Blowfish.prototype.decrypt_ORIG=function(t){
-	for(var i=0;i<t.length%16;i++) t+='0';
-	var r='';
-	for (var i=0;i<t.length;i+=16){
-		this.xr_par=this.wordunescape(t.substr(i,8));
-		this.xl_par=this.wordunescape(t.substr(i+8,8));
-		this.decipher();
-		r+=this.wordescape(this.xr_par)+this.wordescape(this.xl_par);
-	}
-	return this.unescape(r);
-};
-
 // remix compatible with Crypt::Blowfish
 Blowfish.prototype.encrypt = function (t)
 {
