@@ -18,7 +18,7 @@ function Blowfish(k){
 	this.bf_S3=this.Fbf_S3();
 	this.escape=function(t){
 		var r='';
-		for(var i=0;i<t.length;i++){
+		for(var i=0,l=t.length;i<l;i++){
 			var c=t.charCodeAt(i);
 			var t1=Math.floor(c/16);
 			var t2=c%16;
@@ -72,7 +72,7 @@ function Blowfish(k){
 	}
 	this.unescape=function(t){
 		var r='';
-		for(i=0;i<t.length;i++){
+		for(i=0,l=t.length;i<l;i++){
 			var t1=t.charCodeAt(i++);
 			var t2=t.charCodeAt(i);
 			if (t1<58) t1-=48;
@@ -277,9 +277,9 @@ Blowfish.prototype.Fbf_S3=function(){return [
 ];};
 Blowfish.prototype.encrypt=function(t){
 	var t=this.escape(t);
-	for(var i=0;i<t.length%16;i++) t+='0';
+	for(var i=0,l=t.length%16;i<l;i++) t+='0';
 	var r='';
-	for(var i=0;i<t.length;i+=16){
+	for(var i=0,l=t.length;i<l;i+=16){
 		this.xr_par=this.wordunescape(t.substr(i,8));
 		this.xl_par=this.wordunescape(t.substr(i+8,8));
 		this.encipher();
@@ -288,21 +288,21 @@ Blowfish.prototype.encrypt=function(t){
 	return r;
 };
 Blowfish.prototype.decrypt=function(t){
-	for(var i=0;i<t.length%16;i++) t+='0';
+	for(var i=0,l=t.length%16;i<l;i++) t+='0';
 	var r='';
-	for (var i=0;i<t.length;i+=16){
+	for (var i=0,l=t.length;i<l;i+=16){
 		this.xr_par=this.wordunescape(t.substr(i,8));
 		this.xl_par=this.wordunescape(t.substr(i+8,8));
 		this.decipher();
 		r+=this.wordescape(this.xr_par)+this.wordescape(this.xl_par);
 	}
-	return this.unescape(r);
+	return this.unescape(r).replace(/\x00+$/, '');
 };
 Blowfish.prototype.wordescape=function(w){
 	var r='';
 	// reverse byteorder for intel systems
 	var m=new Array (this.wordbyte0(w),this.wordbyte1(w),this.wordbyte2(w),this.wordbyte3(w));
-	for(var i=3;i>=0;i--){
+	for(var i=3;i!=-1;i--){
 		var t1=Math.floor(m[i]/16);
 		var t2=m[i]%16;
 		if (t1<10) t1+=48;
@@ -316,7 +316,7 @@ Blowfish.prototype.wordescape=function(w){
 Blowfish.prototype.wordunescape=function(t){
 	var r=0;
 	// reverse byteorder for intel systems
-	for(var i=6;i>=0;i-=2){
+	for(var i=6;i!=-2;i-=2){
 		var t1=t.charCodeAt(i);
 		var t2=t.charCodeAt(i+1);
 		if (t1<58) t1-=48;
