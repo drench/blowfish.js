@@ -1,6 +1,6 @@
 {
   "name": "blowfish",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Blowfish encryption in JavaScript",
   "main": "blowfish.js",
   "scripts": {
