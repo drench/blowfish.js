@@ -292,7 +292,7 @@ Blowfish.prototype.Fbf_S3=function(){return [
 // remix compatible with Crypt::Blowfish
 Blowfish.prototype.encrypt = function (t)
 {
-for (var f = 0; f < t.length % 8; f ++) t+= "0";
+for (var f = 0; f < t.length % 8; f ++) t+= "\u0000";
 var enc = "";
 
 for (var f = 0; f < t.length; f += 8)
@@ -317,7 +317,7 @@ return enc;
 // remix compatible with Crypt::Blowfish
 Blowfish.prototype.decrypt = function (t)
 {
-for (var f = 0; f < t.length % 16; f ++) t += "0";
+for (var f = 0; f < t.length % 16; f ++) t += "\u0000";
 var dec = "";
 
 for (var f = 0; f < t.length; f += 16)
