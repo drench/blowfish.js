@@ -409,3 +409,6 @@ Blowfish.prototype.decipher=function(){
 	t.xl_par=Xr;
 	t.xr_par=Xl;
 };
+
+// Export for node.js
+module.exports = Blowfish;
