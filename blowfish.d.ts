@@ -1,22 +1,21 @@
 declare module 'blowfish' {
-	class Blowfish {
-		constructor(key: string)
+	export default class Blowfish {
+		public constructor(key: string)
+		
+		public encrypt(t: string): string
+		public decrypt(t: string): string
 
-		Fbf_P(): number[]
-		Fbf_S0(): number[]
-		Fbf_S1(): number[]
-		Fbf_S2(): number[]
-		Fbf_S3(): number[]
+		protected Fbf_P(): number[]
+		protected Fbf_S0(): number[]
+		protected Fbf_S1(): number[]
+		protected Fbf_S2(): number[]
+		protected Fbf_S3(): number[]
 
-		encrypt(t: string): string
-		decrypt(t: string): string
+		protected wordescape(t: string): string
+		protected wordunescape(t: string): string
 
-		wordescape(t: string): string
-		wordunescape(t: string): string
-
-		round(a: number, b: number, n: number): number
-		encipher(): void
-		decipher(): void
+		protected round(a: number, b: number, n: number): number
+		protected encipher(): void
+		protected decipher(): void
 	}
-	export = Blowfish
 }
