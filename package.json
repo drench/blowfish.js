@@ -1,8 +1,9 @@
 {
   "name": "blowfish",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Blowfish encryption in JavaScript",
   "main": "blowfish.js",
+  "types": "blowfish.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
