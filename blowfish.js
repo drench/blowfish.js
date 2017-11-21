@@ -14,8 +14,9 @@
  it under the terms of the Universal General Public License (UGPL).
  http://aam.ugpl.de/?q=ugpl
 */
-function Blowfish(k){
+function Blowfish(k, padding){
 	if (k.length==0) throw "0 length key";
+	this.padding = padding || '\u0000';
 	this.bf_P=this.Fbf_P();
 	this.bf_S0=this.Fbf_S0();
 	this.bf_S1=this.Fbf_S1();
@@ -292,7 +293,7 @@ Blowfish.prototype.Fbf_S3=function(){return [
 // remix compatible with Crypt::Blowfish
 Blowfish.prototype.encrypt = function (t)
 {
-for (var f = 0; f < t.length % 8; f ++) t+= "0";
+for (var f = 0; f < t.length % 8; f ++) t+= this.padding;
 var enc = "";
 
 for (var f = 0; f < t.length; f += 8)
@@ -317,7 +318,7 @@ return enc;
 // remix compatible with Crypt::Blowfish
 Blowfish.prototype.decrypt = function (t)
 {
-for (var f = 0; f < t.length % 16; f ++) t += "0";
+for (var f = 0; f < t.length % 16; f ++) t += this.padding;
 var dec = "";
 
 for (var f = 0; f < t.length; f += 16)
@@ -409,3 +410,6 @@ Blowfish.prototype.decipher=function(){
 	t.xl_par=Xr;
 	t.xr_par=Xl;
 };
+
+// Export for node.js
+module.exports = Blowfish;
